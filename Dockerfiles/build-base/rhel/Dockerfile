@@ -1,9 +1,9 @@
 # syntax=docker/dockerfile:1
-FROM registry.access.redhat.com/ubi9/ubi-minimal
+FROM registry.access.redhat.com/ubi9/ubi-minimal:9.3
 
 ARG MAJOR_VERSION=6.4
-ARG RELEASE=8
-ARG ZBX_VERSION=${MAJOR_VERSION}.8
+ARG RELEASE=12
+ARG ZBX_VERSION=${MAJOR_VERSION}.12
 
 ENV TERM=xterm \
     ZBX_VERSION=${ZBX_VERSION} \
@@ -29,7 +29,9 @@ LABEL description="Prepared environment to build Zabbix components" \
 
 COPY ["licenses", "/licenses"]
 
-RUN set -eux && \
+RUN --mount=type=tmpfs,target=/var/lib/dnf/ \
+    --mount=type=bind,target=/run/secrets/,src=secrets/ \
+    set -eux && \
     INSTALL_PKGS="autoconf \
             automake \
             bash \
@@ -40,6 +42,7 @@ RUN set -eux && \
             libcurl-devel \
             libevent-devel \
             libssh-devel \
+            libmodbus-devel \
             libxml2-devel \
             openssl-devel \
             openldap-devel \
@@ -50,10 +53,13 @@ RUN set -eux && \
             openldap-devel \
             sqlite-devel \
             postgresql-devel \
-            java-1.8.0-openjdk-devel \
+            java-17-openjdk-devel \
             git \
             gettext \
             unixODBC-devel" && \
+    curl -sSL -o /tmp/epel-release-latest-9.noarch.rpm https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm && \
+    rpm -ivh /tmp/epel-release-latest-9.noarch.rpm && \
+    rm -rf /tmp/epel-release-latest-9.noarch.rpm && \
     ARCH_SUFFIX="$(arch)"; \
     microdnf -y install \
             --disablerepo "*" \
@@ -62,10 +68,10 @@ RUN set -eux && \
             --enablerepo "rhel-9-for-$ARCH_SUFFIX-baseos-rpms" \
             --enablerepo "rhel-9-for-$ARCH_SUFFIX-appstream-rpms" \
             --enablerepo "codeready-builder-for-rhel-9-$ARCH_SUFFIX-rpms" \
+            --enablerepo "epel" \
             --setopt=install_weak_deps=0 \
+            --setopt=keepcache=0 \
             --best \
             --setopt=tsflags=nodocs \
         ${INSTALL_PKGS} && \
-    microdnf -y clean all && \
-    rm -rf /var/cache/yum /var/lib/yum/yumdb/* /usr/lib/udev/hwdb.d/* && \
-    rm -rf /var/cache/dnf /etc/udev/hwdb.bin /root/.pki
+    microdnf -y clean all

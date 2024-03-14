@@ -1,9 +1,9 @@
 # syntax=docker/dockerfile:1
 ARG MAJOR_VERSION=6.4
-ARG ZBX_VERSION=${MAJOR_VERSION}.8
+ARG ZBX_VERSION=${MAJOR_VERSION}.12
 ARG BUILD_BASE_IMAGE=zabbix-build-base:centos-${ZBX_VERSION}
 
-FROM ${BUILD_BASE_IMAGE} as builder
+FROM ${BUILD_BASE_IMAGE} AS builder
 
 ARG MAJOR_VERSION
 ARG ZBX_VERSION
@@ -22,22 +22,10 @@ LABEL org.opencontainers.image.authors="Alexey Pustovalov <alexey.pustovalov@zab
 ENV MONGODB_PLUGIN_SOURCES=https://git.zabbix.com/scm/ap/mongodb.git MONGODB_PLUGIN_VERSION=${ZBX_VERSION} \
     POSTGRESQL_PLUGIN_SOURCES=https://git.zabbix.com/scm/ap/postgresql.git POSTGRESQL_PLUGIN_VERSION=${ZBX_VERSION}
 
-COPY ["conf/chromedp_no_sandbox.patch", "/tmp/chromedp_no_sandbox.patch"]
-
-RUN set -eux && \
-    ARCH_SUFFIX="$(arch)"; \
-    case "$ARCH_SUFFIX" in \
-        x86_64) \
-            additional_components='--enable-java'; \
-            ;; \
-        aarch64) \
-            additional_components='--enable-java'; \
-            ;; \
-        ppc64le) \
-            additional_components=''; \
-            ;; \
-        *) echo "Unknown ARCH_SUFFIX=${ARCH_SUFFIX-}"; exit 1 ;; \
-    esac; \
+RUN --mount=type=cache,target=/root/.cache/go-build/ \
+    --mount=type=cache,target=/root/go/ \
+    --mount=type=bind,source=conf/chromedp_no_sandbox.patch,target=/tmp/chromedp_no_sandbox.patch \
+    set -eux && \
     cd /tmp/ && \
     git -c advice.detachedHead=false clone ${ZBX_SOURCES} --branch ${ZBX_VERSION} --depth 1 --single-branch /tmp/zabbix-${ZBX_VERSION} && \
     cd /tmp/zabbix-${ZBX_VERSION} && \
@@ -62,7 +50,7 @@ RUN set -eux && \
             --enable-webservice \
             --with-ldap \
             --with-libcurl \
-#            --with-libmodbus \
+            --with-libmodbus \
             --with-libpcre2 \
             --with-libxml2 \
             --with-net-snmp \
@@ -71,7 +59,7 @@ RUN set -eux && \
             --with-postgresql \
             --with-ssh \
             --with-unixodbc \
-            $additional_components \
+            --enable-java \
             --silent && \
     make -j"$(nproc)" -s dbschema && \
     make -j"$(nproc)" -s && \
@@ -85,7 +73,7 @@ RUN set -eux && \
     gzip -c database/postgresql/create.sql > database/postgresql/create_proxy.sql.gz && \
     rm -rf database/postgresql/create.sql && \
     mkdir /tmp/fonts/ && \
-    curl --silent -L "https://noto-website.storage.googleapis.com/pkgs/NotoSansCJKjp-hinted.zip" -o /tmp/fonts/NotoSansCJKjp-hinted.zip && \
+    curl --tlsv1.2 -sSf -L "https://noto-website.storage.googleapis.com/pkgs/NotoSansCJKjp-hinted.zip" -o /tmp/fonts/NotoSansCJKjp-hinted.zip && \
     unzip /tmp/fonts/NotoSansCJKjp-hinted.zip -d /tmp/fonts/ && \
     cp /tmp/fonts/NotoSansCJKjp-Regular.otf /tmp/zabbix-${ZBX_VERSION}/ui/assets/fonts/NotoSansCJKjp-Regular.ttf && \
     cp /tmp/fonts/LICENSE_OFL.txt /tmp/zabbix-${ZBX_VERSION}/ui/assets/fonts/ && \
@@ -109,5 +97,4 @@ RUN set -eux && \
     git -c advice.detachedHead=false clone ${POSTGRESQL_PLUGIN_SOURCES} --branch ${POSTGRESQL_PLUGIN_VERSION} --depth 1 --single-branch /tmp/postgresql_plugin && \
     cd /tmp/postgresql_plugin && \
     make && \
-    strip /tmp/postgresql_plugin/zabbix-agent2-plugin-postgresql && \
-    rm -rf $(go env GOCACHE)
+    strip /tmp/postgresql_plugin/zabbix-agent2-plugin-postgresql

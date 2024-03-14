@@ -2,11 +2,11 @@
 FROM ubuntu:jammy
 
 ARG MAJOR_VERSION=6.4
-ARG ZBX_VERSION=${MAJOR_VERSION}.8
+ARG ZBX_VERSION=${MAJOR_VERSION}.12
 
 ENV TERM=xterm \
     ZBX_VERSION=${ZBX_VERSION} \
-    PATH=/usr/lib/go-1.18/bin:$PATH
+    PATH=/usr/lib/go-1.21/bin:$PATH
 
 LABEL org.opencontainers.image.authors="Alexey Pustovalov <alexey.pustovalov@zabbix.com>" \
       org.opencontainers.image.description="Zabbix build base image contains all required packages to build Zabbix images" \
@@ -17,7 +17,8 @@ LABEL org.opencontainers.image.authors="Alexey Pustovalov <alexey.pustovalov@zab
       org.opencontainers.image.vendor="Zabbix LLC" \
       org.opencontainers.image.version="${ZBX_VERSION}"
 
-RUN set -eux && \
+RUN --mount=type=cache,target=/var/lib/apt/,sharing=locked \
+    set -eux && \
     INSTALL_PKGS="bash \
             autoconf \
             automake \
@@ -38,12 +39,12 @@ RUN set -eux && \
             libssh-dev \
             libxml2-dev \
             make \
-            openjdk-8-jdk-headless \
+            openjdk-17-jdk-headless \
             patch \
             pkg-config \
             gettext \
             git \
-            golang-1.18 \
+            golang-1.21 \
             unzip \
             unixodbc-dev" && \
     apt-get -y update && \
@@ -51,5 +52,4 @@ RUN set -eux && \
             --no-install-recommends install \
         ${INSTALL_PKGS} && \
     apt-get -y autoremove && \
-    apt-get -y clean && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get -y clean

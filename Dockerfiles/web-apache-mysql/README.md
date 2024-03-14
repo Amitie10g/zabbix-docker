@@ -14,16 +14,12 @@ Zabbix web interface is a part of Zabbix software. It is used to manage resource
 
 # Zabbix web interface images
 
-These are the only official Zabbix web interface Docker images. They are based on Alpine Linux v3.12, Ubuntu 20.04 (focal), 22.04 (jammy), CentOS Stream 8 and Oracle Linux 8 images. The available versions of Zabbix web interface are:
+These are the only official Zabbix web interface Docker images. They are based on Alpine Linux v3.19, Ubuntu 22.04 (jammy), CentOS Stream 9 and Oracle Linux 9 images. The available versions of Zabbix web interface are:
 
-    Zabbix web interface 4.0 (tags: alpine-4.0-latest, ubuntu-4.0-latest, centos-4.0-latest)
-    Zabbix web interface 4.0.* (tags: alpine-4.0.*, ubuntu-4.0.*, centos-4.0.*)
     Zabbix web interface 5.0 (tags: alpine-5.0-latest, ubuntu-5.0-latest, ol-5.0-latest)
     Zabbix web interface 5.0.* (tags: alpine-5.0.*, ubuntu-5.0.*, ol-5.0.*)
     Zabbix web interface 6.0 (tags: alpine-6.0-latest, ubuntu-6.0-latest, ol-6.0-latest)
     Zabbix web interface 6.0.* (tags: alpine-6.0.*, ubuntu-6.0.*, ol-6.0.*)
-    Zabbix web interface 6.2 (tags: alpine-6.2-latest, ubuntu-6.2-latest, ol-6.2-latest)
-    Zabbix web interface 6.2.* (tags: alpine-6.2.*, ubuntu-6.2.*, ol-6.2.*)
     Zabbix web interface 6.4 (tags: alpine-6.4-latest, ubuntu-6.4-latest, ol-6.4-latest, alpine-latest, ubuntu-latest, ol-latest, latest)
     Zabbix web interface 6.4.* (tags: alpine-6.4.*, ubuntu-6.4.*, ol-6.4.*)
     Zabbix web interface 7.0 (tags: alpine-trunk, ubuntu-trunk, ol-trunk)
@@ -126,7 +122,7 @@ The variable is timezone in PHP format. Full list of supported timezones are ava
 
 ### `ZBX_SERVER_NAME`
 
-The variable is visible Zabbix installation name in right top corner of the web interface.
+The variable is visible Zabbix installation name in right or left top corner of the web interface.
 
 ### `DB_DOUBLE_IEEE754`
 
@@ -134,7 +130,15 @@ Use IEEE754 compatible value range for 64-bit Numeric (float) history values. Av
 
 ### `ENABLE_WEB_ACCESS_LOG`
 
-The variable sets the Access Log directive for Web-server. By default, value corresponds to standard output.
+The variable sets the Access Log directive for Web server. By default, value corresponds to standard output.
+
+### `HTTP_INDEX_FILE`
+
+The variable controls default index page. By default, `index.php`.
+
+### `EXPOSE_WEB_SERVER_INFO`
+
+The variable allows to hide Web server and PHP versions. By default, `on`.
 
 ### `ZBX_MAXEXECUTIONTIME`
 
@@ -196,9 +200,31 @@ The variable allows to activate host verification. Available since 5.0.0.
 
 The variable allows to specify a custom list of valid ciphers. The format of the cipher list must conform to the OpenSSL standard. Available since 5.0.0.
 
+### `ZBX_SSO_SP_KEY`
+
+The variable allows to specify a custom file path to the Serivce Provider (SP) private key file.
+
+### `ZBX_SSO_SP_CERT`
+
+The variable allows to specify a custom file path to the Serivce Provider (SP) cert file.
+
+### `ZBX_SSO_IDP_CERT`
+
+The variable allows to specify a custom file path to the SAML Certificate provided by the Identity Provider (ID) file.
+
 ## `ZBX_SSO_SETTINGS`
 
 The variable allows to specify custom SSO settings in JSON format. Available since 5.0.0.
+
+Example of YAML Mapping to Sequences
+
+```
+....
+  environment:
+    ZBX_SSO_SETTINGS: "{'baseurl': 'https://zabbix-docker.mydomain.com', 'use_proxy_headers': true, 'strict': false}"
+    ....
+....
+```
 
 ### Other variables
 
@@ -262,7 +288,7 @@ Please see [the Docker installation documentation](https://docs.docker.com/insta
 
 ## Documentation
 
-Documentation for this image is stored in the [`web-apache-mysql/` directory](https://github.com/zabbix/zabbix-docker/tree/3.0/web-apache-mysql) of the [`zabbix/zabbix-docker` GitHub repo](https://github.com/zabbix/zabbix-docker/). Be sure to familiarize yourself with the [repository's `README.md` file](https://github.com/zabbix/zabbix-docker/blob/master/README.md) before attempting a pull request.
+Documentation for this image is stored in the [`web-apache-mysql/` directory](https://github.com/zabbix/zabbix-docker/tree/6.4/Dockerfiles/web-apache-mysql) of the [`zabbix/zabbix-docker` GitHub repo](https://github.com/zabbix/zabbix-docker/). Be sure to familiarize yourself with the [repository's `README.md` file](https://github.com/zabbix/zabbix-docker/blob/6.4/README.md) before attempting a pull request.
 
 ## Issues
 

@@ -14,16 +14,12 @@ The image is used to receive SNMP traps, store them to a log file and provide ac
 
 # Zabbix snmptraps images
 
-These are the only official Zabbix snmptraps Docker images. They are based on Alpine Linux v3.12, Ubuntu 20.04 (focal), 22.04 (jammy), CentOS Stream 8 and Oracle Linux 8 images. The available versions of Zabbix snmptraps are:
+These are the only official Zabbix snmptraps Docker images. They are based on Alpine Linux v3.19, Ubuntu 22.04 (jammy), CentOS Stream 9 and Oracle Linux 9 images. The available versions of Zabbix snmptraps are:
 
-    Zabbix snmptraps 4.0 (tags: alpine-4.0-latest, ubuntu-4.0-latest, centos-4.0-latest)
-    Zabbix snmptraps 4.0.* (tags: alpine-4.0.*, ubuntu-4.0.*, centos-4.0.*)
     Zabbix snmptraps 5.0 (tags: alpine-5.0-latest, ubuntu-5.0-latest, ol-5.0-latest)
     Zabbix snmptraps 5.0.* (tags: alpine-5.0.*, ubuntu-5.0.*, ol-5.0.*)
     Zabbix snmptraps 6.0 (tags: alpine-6.0-latest, ubuntu-6.0-latest, ol-6.0-latest)
     Zabbix snmptraps 6.0.* (tags: alpine-6.0.*, ubuntu-6.0.*, ol-6.0.*)
-    Zabbix snmptraps 6.2 (tags: alpine-6.2-latest, ubuntu-6.2-latest, ol-6.2-latest)
-    Zabbix snmptraps 6.2.* (tags: alpine-6.2.*, ubuntu-6.2.*, ol-6.2.*)
     Zabbix snmptraps 6.4 (tags: alpine-6.4-latest, ubuntu-6.4-latest, ol-6.4-latest, alpine-latest, ubuntu-latest, ol-latest, latest)
     Zabbix snmptraps 6.4.* (tags: alpine-6.4.*, ubuntu-6.4.*, ol-6.4.*)
     Zabbix snmptraps 7.0 (tags: alpine-trunk, ubuntu-trunk, ol-trunk)
@@ -57,6 +53,23 @@ The Zabbix snmptraps log is available through Docker's container log:
 ```console
 $ docker logs  some-zabbix-snmptraps
 ```
+
+## Environment Variables
+
+When you start the `zabbix-snmptraps` image, you can adjust the configuration by passing one or more environment variables on the `docker run` command line.
+
+### `ZBX_SNMP_TRAP_DATE_FORMAT`
+
+This variable is represent date and time format in the output `snmptraps.log` file. By default, value is `+%Y%m%d.%H%M%S`. Please, refer to `date` command man for more details about date and time format.
+
+### `ZBX_SNMP_TRAP_FORMAT`
+
+This variable is SNMP trap format in the output `snmptraps.log` file. By default, value is `\n`, in this case each new variable is placed on new line.
+
+### `ZBX_SNMP_TRAP_USE_DNS`
+
+This variable manages source network address representation. It can be IP address or DNS of SNMP trap sender. The variable works only when container command is modified and "-n" command argument is removed from argument list. By default, value is `false`.
+
 
 ## Allowed volumes for the Zabbix snmptraps container
 
@@ -100,7 +113,7 @@ Please see [the Docker installation documentation](https://docs.docker.com/insta
 
 ## Documentation
 
-Documentation for this image is stored in the [`snmptraps/` directory](https://github.com/zabbix/zabbix-docker/tree/3.0/snmptraps) of the [`zabbix/zabbix-docker` GitHub repo](https://github.com/zabbix/zabbix-docker/). Be sure to familiarize yourself with the [repository's `README.md` file](https://github.com/zabbix/zabbix-docker/blob/master/README.md) before attempting a pull request.
+Documentation for this image is stored in the [`snmptraps/` directory](https://github.com/zabbix/zabbix-docker/tree/6.4/Dockerfiles/snmptraps) of the [`zabbix/zabbix-docker` GitHub repo](https://github.com/zabbix/zabbix-docker/). Be sure to familiarize yourself with the [repository's `README.md` file](https://github.com/zabbix/zabbix-docker/blob/6.4/README.md) before attempting a pull request.
 
 ## Issues
 

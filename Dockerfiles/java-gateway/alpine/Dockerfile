@@ -1,11 +1,11 @@
 # syntax=docker/dockerfile:1
 ARG MAJOR_VERSION=6.4
-ARG ZBX_VERSION=${MAJOR_VERSION}.8
+ARG ZBX_VERSION=${MAJOR_VERSION}.12
 ARG BUILD_BASE_IMAGE=zabbix-build-mysql:alpine-${ZBX_VERSION}
 
-FROM ${BUILD_BASE_IMAGE} as builder
+FROM ${BUILD_BASE_IMAGE} AS builder
 
-FROM alpine:3.17
+FROM alpine:3.19
 
 ARG MAJOR_VERSION
 ARG ZBX_VERSION
@@ -31,8 +31,21 @@ COPY --from=builder ["/tmp/zabbix-${ZBX_VERSION}/src/zabbix_java/bin", "/usr/sbi
 COPY --from=builder ["/tmp/zabbix-${ZBX_VERSION}/src/zabbix_java/lib", "/usr/sbin/zabbix_java/lib"]
 
 RUN set -eux && \
+    ARCH_SUFFIX="$(cat /etc/apk/arch)"; \
+    case "$ARCH_SUFFIX" in \
+        x86) \
+            openjdk_packages='openjdk8-jre-base'; \
+            ;; \
+        armv7) \
+            openjdk_packages='openjdk8 openjdk8-jre-base'; \
+            ;; \
+        ppc64le) \
+            openjdk_packages='openjdk11-jre-headless'; \
+            ;; \
+        *) openjdk_packages='openjdk17-jre-headless'; \
+    esac; \
     INSTALL_PKGS="bash \
-            openjdk8-jre-base" && \
+            $openjdk_packages" && \
     apk add \
             --no-cache \
             --clean-protected \
@@ -50,7 +63,6 @@ RUN set -eux && \
             --shell /sbin/nologin \
             --home /var/lib/zabbix/ \
         zabbix && \
-    adduser zabbix root && \
     mkdir -p /etc/zabbix/ && \
     mkdir -p /usr/sbin/zabbix_java/ && \
     mkdir -p /usr/sbin/zabbix_java/ext_lib/ && \
@@ -58,8 +70,7 @@ RUN set -eux && \
     mv /usr/sbin/zabbix_java/lib/logback-console.xml /etc/zabbix/zabbix_java_gateway_logback.xml && \
     chown --quiet -R zabbix:root /etc/zabbix/ /usr/sbin/zabbix_java/ && \
     chgrp -R 0 /etc/zabbix/ /usr/sbin/zabbix_java/ && \
-    chmod -R g=u /etc/zabbix/ /usr/sbin/zabbix_java/ && \
-    rm -rf /var/cache/apk/*
+    chmod -R g=u /etc/zabbix/ /usr/sbin/zabbix_java/
 
 EXPOSE 10052/TCP
 

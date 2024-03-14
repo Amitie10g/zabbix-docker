@@ -23,6 +23,8 @@ fi
 ZABBIX_ETC_DIR="/etc/zabbix"
 # Web interface www-root directory
 ZABBIX_WWW_ROOT="/usr/share/zabbix"
+# Apache main configuration file
+HTTPD_CONF_FILE="/etc/apache2/apache2.conf"
 
 # usage: file_env VAR [DEFAULT]
 # as example: file_env 'MYSQL_PASSWORD' 'zabbix'
@@ -210,16 +212,41 @@ prepare_zbx_web_config() {
         rm -f "/tmp/defines.inc.php_tmp"
     fi
 
+    : ${HTTP_INDEX_FILE:="index.php"}
+    sed -i \
+        -e "s/{HTTP_INDEX_FILE}/${HTTP_INDEX_FILE}/g" \
+    "$ZABBIX_ETC_DIR/apache.conf"
+
+    if [ -f "$ZABBIX_ETC_DIR/apache_ssl.conf" ]; then
+        sed -i \
+            -e "s/{HTTP_INDEX_FILE}/${HTTP_INDEX_FILE}/g" \
+        "$ZABBIX_ETC_DIR/apache_ssl.conf"
+    fi
+
     : ${ENABLE_WEB_ACCESS_LOG:="true"}
 
     if [ "${ENABLE_WEB_ACCESS_LOG,,}" == "false" ]; then
         sed -ri \
             -e 's!^(\s*CustomLog)\s+\S+!\1 /dev/null!g' \
-            "/etc/apache2/apache2.conf"
+            "$HTTPD_CONF_FILE"
         sed -ri \
             -e 's!^(\s*CustomLog)\s+\S+!\1 /dev/null!g' \
             "/etc/apache2/conf-available/other-vhosts-access-log.conf"
     fi
+
+    : ${EXPOSE_WEB_SERVER_INFO:="on"}
+    if [ "${EXPOSE_WEB_SERVER_INFO}" = "off" ]; then
+        sed -i \
+            -e "s/^\(\s*ServerTokens\).*\$/\1 Prod/g" \
+        "$HTTPD_CONF_FILE"
+    else
+        EXPOSE_WEB_SERVER_INFO="on"
+    fi
+
+    export EXPOSE_WEB_SERVER_INFO=${EXPOSE_WEB_SERVER_INFO}
+    sed -i \
+        -e "s/^\(\s*ServerSignature\).*\$/\1 ${EXPOSE_WEB_SERVER_INFO^}/g" \
+    "$HTTPD_CONF_FILE"
 }
 
 #################################################

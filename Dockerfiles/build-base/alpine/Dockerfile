@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1
-FROM alpine:3.17
+FROM alpine:3.19
 
 ARG MAJOR_VERSION=6.4
-ARG ZBX_VERSION=${MAJOR_VERSION}.8
+ARG ZBX_VERSION=${MAJOR_VERSION}.12
 
 ENV TERM=xterm \
     ZBX_VERSION=${ZBX_VERSION} \
@@ -19,6 +19,19 @@ LABEL org.opencontainers.image.authors="Alexey Pustovalov <alexey.pustovalov@zab
       org.opencontainers.image.version="${ZBX_VERSION}"
 
 RUN set -eux && \
+    ARCH_SUFFIX="$(cat /etc/apk/arch)"; \
+    case "$ARCH_SUFFIX" in \
+        x86) \
+            openjdk_packages='openjdk8 openjdk8-jre-base'; \
+            ;; \
+        armv7) \
+            openjdk_packages='openjdk8 openjdk8-jre-base'; \
+            ;; \
+        ppc64le) \
+            openjdk_packages='openjdk11 openjdk11-jre-headless'; \
+            ;; \
+        *) openjdk_packages='openjdk17 openjdk17-jre-headless'; \
+    esac; \
     INSTALL_PKGS="bash \
             autoconf \
             automake \
@@ -38,16 +51,14 @@ RUN set -eux && \
             patch \
             pcre2-dev \
             postgresql-dev \
-            openjdk8 \
             gettext \
             git \
             g++ \
             go \
             make \
-            openjdk8-jre-base \
+            $openjdk_packages \
             unixodbc-dev" && \
     apk add \
             --no-cache \
             --clean-protected \
-        ${INSTALL_PKGS} && \
-    rm -rf /var/cache/apk/*
+        ${INSTALL_PKGS}

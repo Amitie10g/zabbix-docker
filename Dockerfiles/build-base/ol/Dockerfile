@@ -2,7 +2,7 @@
 FROM oraclelinux:9-slim
 
 ARG MAJOR_VERSION=6.4
-ARG ZBX_VERSION=${MAJOR_VERSION}.8
+ARG ZBX_VERSION=${MAJOR_VERSION}.12
 
 ENV TERM=xterm \
     ZBX_VERSION=${ZBX_VERSION} \
@@ -17,7 +17,10 @@ LABEL org.opencontainers.image.authors="Alexey Pustovalov <alexey.pustovalov@zab
       org.opencontainers.image.vendor="Zabbix LLC" \
       org.opencontainers.image.version="${ZBX_VERSION}"
 
-RUN set -eux && \
+COPY ["conf/etc/yum.repos.d/oracle-epel-ol9.repo", "/etc/yum.repos.d/oracle-epel-ol9.repo"]
+
+RUN --mount=type=tmpfs,target=/var/lib/dnf/ \
+    set -eux && \
     INSTALL_PKGS="autoconf \
             automake \
             bash \
@@ -28,6 +31,7 @@ RUN set -eux && \
             libcurl-devel \
             libevent-devel \
             libssh-devel \
+            libmodbus-devel \
             libxml2-devel \
             openssl-devel \
             openldap-devel \
@@ -38,7 +42,7 @@ RUN set -eux && \
             openldap-devel \
             sqlite-devel \
             postgresql-server-devel \
-            java-1.8.0-openjdk-devel \
+            java-17-openjdk-devel \
             git \
             gettext \
             unixODBC-devel" && \
@@ -47,9 +51,9 @@ RUN set -eux && \
         --enablerepo "ol9_baseos_latest" \
         --enablerepo "ol9_appstream" \
         --enablerepo "ol9_codeready_builder" \
+        --enablerepo="ol9_developer_EPEL" \
         --setopt=install_weak_deps=0 \
+        --setopt=keepcache=0 \
         --best \
         --nodocs ${INSTALL_PKGS} && \
-    microdnf -y clean all && \
-    rm -rf /var/cache/yum /var/lib/yum/yumdb/* /usr/lib/udev/hwdb.d/* && \
-    rm -rf /var/cache/dnf /etc/udev/hwdb.bin /root/.pki
+    microdnf -y clean all

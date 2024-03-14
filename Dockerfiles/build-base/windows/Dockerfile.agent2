@@ -3,15 +3,15 @@
 ARG BUILD_BASE_IMAGE=mcr.microsoft.com/windows/servercore:ltsc2022
 FROM $BUILD_BASE_IMAGE as builder_base
 
-ARG PCRE2_VERSION=10.39
-ARG OPENSSL_VERSION=3.0.8
-ARG GOLANG_VERSION=1.19.6
+ARG PCRE2_VERSION=10.42
+ARG OPENSSL_VERSION=3.1.4
+ARG GOLANG_VERSION=1.21.1
 ARG SEVEN_ZIP_VERSION=2107
 ARG BUILD_ARCH=x64
 ARG CPU_MODEL=AMD64
 
 ARG MAJOR_VERSION=6.4
-ARG ZBX_VERSION=${MAJOR_VERSION}.8
+ARG ZBX_VERSION=${MAJOR_VERSION}.12
 
 ARG VS_BUILDTOOLS_URL=https://aka.ms/vs/16/release/vs_buildtools.exe
 ARG GIT_URL=https://github.com/git-for-windows/git/releases/download/v2.33.0.windows.2/MinGit-2.33.0.2-busybox-64-bit.zip
@@ -66,7 +66,7 @@ RUN Set-Location -Path $env:SystemDrive\.; `
     Write-Host ('Downloading {0} ...' -f $env:GOLANG_URL); `
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; `
     Invoke-WebRequest -OutFile $env:SystemDrive\go-amd64.msi -Uri $env:GOLANG_URL; `
-    $sha256 = '205c178f7ebe29fa24fac72ddc097d3a37f541f93eae0ccf84d61cc459dc76d0'; `
+    $sha256 = 'd5bdec8f6c8f453f1a2e3d58ef5c1dd371f1b38930ef323347e345db984fc807'; `
     `
     Write-Host ('Verifying SHA256 ({0}) ...' -f $sha256); `
     if ((Get-FileHash $env:SystemDrive\go-amd64.msi -Algorithm sha256).Hash -ne $sha256) { `
@@ -169,7 +169,7 @@ RUN Set-Location -Path $env:SystemDrive\.; `
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; `
         Invoke-WebRequest -OutFile $env:SystemDrive\pcre2.zip -Uri $env:PCRE2_URL; `
     `
-    $sha256 = '08a8861f60fec3af30ca1e0f51d89ab5dc5c07bb71b74db5297f78b7e26c7226'; `
+    $sha256 = '0f2a1403733d1a409e9305996bf8e5ea7f69ed38f38d2bc1e0c0b041ad7a01a9'; `
     Write-Host ('Verifying SHA256 ({0}) ...' -f $sha256); `
     if ((Get-FileHash $env:SystemDrive\pcre2.zip -Algorithm sha256).Hash -ne $sha256) { `
         Write-Host 'Checksum PCRE2 library failed!'; `
@@ -199,7 +199,7 @@ RUN Set-Location -Path $env:SystemDrive\.; `
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; `
     (New-Object Net.WebClient).DownloadFile("""$env:CYGWIN_URL""", """$env:SystemDrive\setup.exe"""); `
     `
-    $sha256 = 'a17217e66dd7c40fa4851a433335c1f3f003cd627116c708b2f6e66eba886ea9'; `
+    $sha256 = '3d9e0143268f52aecaff76f81553c880ec9a353eb5a6e22bd6d34bad8251710c'; `
     Write-Host ('Verifying SHA256 ({0}) ...' -f $sha256); `
     if ((Get-FileHash $env:SystemDrive\setup.exe -Algorithm sha256).Hash -ne $sha256) { `
         Write-Host 'Checksum Cygwin failed!'; `
@@ -217,7 +217,7 @@ RUN Set-Location -Path $env:SystemDrive\.; `
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; `
     Invoke-WebRequest -OutFile $env:SystemDrive\openssl.tar.gz -Uri $env:OPENSSL_URL; `
     `
-    $sha256 = '6c13d2bf38fdf31eac3ce2a347073673f5d63263398f1f69d0df4a41253e4b3e'; `
+    $sha256 = '840af5366ab9b522bde525826be3ef0fb0af81c6a9ebd84caa600fea1731eee3'; `
     Write-Host ('Verifying SHA256 ({0}) ...' -f $sha256); `
     if ((Get-FileHash $env:SystemDrive\openssl.tar.gz -Algorithm sha256).Hash -ne $sha256) { `
         Write-Host 'Checksum OpenSSL library failed!'; `

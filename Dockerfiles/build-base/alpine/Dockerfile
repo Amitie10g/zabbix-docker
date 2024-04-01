@@ -2,7 +2,7 @@
 FROM alpine:3.19
 
 ARG MAJOR_VERSION=6.4
-ARG ZBX_VERSION=${MAJOR_VERSION}.12
+ARG ZBX_VERSION=${MAJOR_VERSION}.13
 
 ENV TERM=xterm \
     ZBX_VERSION=${ZBX_VERSION} \
@@ -57,7 +57,8 @@ RUN set -eux && \
             go \
             make \
             $openjdk_packages \
-            unixodbc-dev" && \
+            unixodbc-dev \
+            zlib-dev" && \
     apk add \
             --no-cache \
             --clean-protected \

@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 ARG MAJOR_VERSION=6.4
-ARG ZBX_VERSION=${MAJOR_VERSION}.12
+ARG ZBX_VERSION=${MAJOR_VERSION}.13
 ARG BUILD_BASE_IMAGE=zabbix-build-mysql:alpine-${ZBX_VERSION}
 
 FROM ${BUILD_BASE_IMAGE} AS builder
@@ -54,7 +54,8 @@ RUN set -eux && \
             openipmi-libs \
             pcre2 \
             gzip \
-            unixodbc" && \
+            unixodbc \
+            zlib" && \
     apk add \
             --no-cache \
             --clean-protected \

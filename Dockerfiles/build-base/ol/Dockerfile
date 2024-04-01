@@ -2,7 +2,7 @@
 FROM oraclelinux:9-slim
 
 ARG MAJOR_VERSION=6.4
-ARG ZBX_VERSION=${MAJOR_VERSION}.12
+ARG ZBX_VERSION=${MAJOR_VERSION}.13
 
 ENV TERM=xterm \
     ZBX_VERSION=${ZBX_VERSION} \
@@ -45,7 +45,8 @@ RUN --mount=type=tmpfs,target=/var/lib/dnf/ \
             java-17-openjdk-devel \
             git \
             gettext \
-            unixODBC-devel" && \
+            unixODBC-devel \
+            zlib-devel" && \
     microdnf -y install \
         --disablerepo "*" \
         --enablerepo "ol9_baseos_latest" \

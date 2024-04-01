@@ -2,7 +2,7 @@
 FROM quay.io/centos/centos:stream9-minimal
 
 ARG MAJOR_VERSION=6.4
-ARG ZBX_VERSION=${MAJOR_VERSION}.12
+ARG ZBX_VERSION=${MAJOR_VERSION}.13
 
 ENV TERM=xterm \
     ZBX_VERSION=${ZBX_VERSION} \
@@ -44,7 +44,8 @@ RUN --mount=type=tmpfs,target=/var/lib/dnf/ \
             git \
             gettext \
             go-toolset \
-            unixODBC-devel" && \
+            unixODBC-devel \
+            zlib-devel" && \
     microdnf -y install \
         --disablerepo "*" \
         --enablerepo "extras-common" \

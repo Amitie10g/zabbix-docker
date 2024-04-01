@@ -2,7 +2,7 @@
 FROM ubuntu:jammy
 
 ARG MAJOR_VERSION=6.4
-ARG ZBX_VERSION=${MAJOR_VERSION}.12
+ARG ZBX_VERSION=${MAJOR_VERSION}.13
 
 ENV TERM=xterm \
     ZBX_VERSION=${ZBX_VERSION} \
@@ -46,7 +46,8 @@ RUN --mount=type=cache,target=/var/lib/apt/,sharing=locked \
             git \
             golang-1.21 \
             unzip \
-            unixodbc-dev" && \
+            unixodbc-dev \
+            zlib1g-dev" && \
     apt-get -y update && \
     DEBIAN_FRONTEND=noninteractive apt-get -y \
             --no-install-recommends install \

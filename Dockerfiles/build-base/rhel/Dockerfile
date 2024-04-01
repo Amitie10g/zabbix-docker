@@ -2,8 +2,8 @@
 FROM registry.access.redhat.com/ubi9/ubi-minimal:9.3
 
 ARG MAJOR_VERSION=6.4
-ARG RELEASE=12
-ARG ZBX_VERSION=${MAJOR_VERSION}.12
+ARG RELEASE=13
+ARG ZBX_VERSION=${MAJOR_VERSION}.13
 
 ENV TERM=xterm \
     ZBX_VERSION=${ZBX_VERSION} \
@@ -56,8 +56,9 @@ RUN --mount=type=tmpfs,target=/var/lib/dnf/ \
             java-17-openjdk-devel \
             git \
             gettext \
-            unixODBC-devel" && \
-    curl -sSL -o /tmp/epel-release-latest-9.noarch.rpm https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm && \
+            unixODBC-devel \
+            zlib-devel" && \
+    curl --tlsv1.2 -sSf -L https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm -o /tmp/epel-release-latest-9.noarch.rpm && \
     rpm -ivh /tmp/epel-release-latest-9.noarch.rpm && \
     rm -rf /tmp/epel-release-latest-9.noarch.rpm && \
     ARCH_SUFFIX="$(arch)"; \

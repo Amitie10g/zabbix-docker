@@ -456,6 +456,7 @@ jobs:
             go.mongodb.org:443
             golang.org:443
             google.golang.org:443
+            golang.zabbix.com:443
             gopkg.in:443
             ghcr.io:443
             index.docker.io:443
@@ -718,6 +719,8 @@ jobs:
             cdn03.quay.io:443
             centos-stream-distro.1gservers.com:443
             centos-stream-distro.1gservers.com:80
+            download.cf.centos.org:443
+            download.cf.centos.org:80
             d2lzkl7pfhq30w.cloudfront.net:443
             epel.mirror.constant.com:80
             forksystems.mm.fcix.net:80
@@ -851,9 +854,9 @@ jobs:
             # Chromium on Alpine is available only on linux/amd64, linux/arm64 platforms
             if ([ "$MATRIX_OS" == "alpine" ] || [ "$MATRIX_OS" == "centos" ]) && [ "$MATRIX_BUILD" == "web-service" ]; then
                 platform_list="linux/amd64,linux/arm64"
-            # Chromium on Ubuntu is not available on s390x platform
+            # Chromium on Ubuntu is not available on s390x and armhf platform
             elif [ "$MATRIX_OS" == "ubuntu" ] && [ "$MATRIX_BUILD" == "web-service" ]; then
-                platform_list="linux/amd64,linux/arm/v7,linux/arm64"
+                platform_list="linux/amd64,linux/arm64"
             else
                 platform_list=$(jq -r ".[\"os-linux\"].\"$MATRIX_OS\" | join(\",\")" "$MATRIX_FILE")
             fi
